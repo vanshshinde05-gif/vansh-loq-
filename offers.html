@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers & Discounts - Lenovo LOQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .offers-container {
+            max-width: 1200px;
+            margin: 120px auto 60px;
+            padding: 0 20px;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .offer-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 214, 255, 0.15);
+        }
+
+        .offer-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 214, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .offer-card:hover::before {
+            opacity: 1;
+        }
+
+        .offer-tag {
+            background: var(--accent);
+            color: #000;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .offer-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .offer-desc {
+            color: #888;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .coupon-code {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .coupon-code:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+        }
+
+        .coupon-code:active {
+            transform: scale(0.95);
+        }
+
+        .copy-hint {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .coupon-code:hover .copy-hint {
+            opacity: 1;
+        }
+
+        .no-offers {
+            text-align: center;
+            padding: 100px 20px; grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <!-- Same Navbar structure -->
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;">
+                <div class="user-menu-wrapper">
+                    <a href="profile.html" class="user-icon-btn" title="User Menu">👤</a>
+                    <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">👤 Account</a>
+                        <a href="orders.html" class="dropdown-item">📦 Orders</a>
+                        <a href="offers.html" class="dropdown-item">🏷️ Offers & Discounts</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="logout()" class="dropdown-item" style="color: #ff3b30;">🚪 Logout</a>
+                    </div>
+                </div>
+                <a href="index.html" style="color:white; text-decoration:none; margin-left: 15px;">LOQ</a>
+            </div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html">Cooling</a>
+                <a href="specs.html">Specs</a>
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon-wrapper" title="Shopping Cart">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="purchase.html" class="btn-primary">Experience Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offers-container">
+        <div class="page-header">
+            <h1 style="font-size: 3rem; color: #fff;">Exclusive Offers</h1>
+            <p style="color: #888; font-size: 1.1rem;">Limited time deals for the Lenovo LOQ community.</p>
+        </div>
+
+        <div class="offers-grid" id="offers-list">
+            <!-- Loading -->
+            <div class="offer-card skeleton" style="height: 300px;"></div>
+            <div class="offer-card skeleton" style="height: 300px;"></div>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+    <script>
+        async function loadOffers() {
+            try {
+                const res = await fetch('http://localhost:3000/api/coupons');
+                const coupons = await res.json();
+                
+                const listEl = document.getElementById('offers-list');
+                
+                if (!coupons || Object.keys(coupons).length === 0) {
+                    listEl.innerHTML = '<div class="no-offers"><h2>No active offers right now. Check back soon!</h2></div>';
+                    return;
+                }
+
+                listEl.innerHTML = Object.entries(coupons).map(([code, discount]) => `
+                    <div class="offer-card">
+                        <div>
+                            <span class="offer-tag">Flash Sale</span>
+                            <h2 class="offer-title">Save ₹${discount.toLocaleString('en-IN')}</h2>
+                            <p class="offer-desc">Apply this coupon during checkout to unlock special pricing on your new LOQ laptop.</p>
+                        </div>
+                        <div class="coupon-code" onclick="copyCoupon('${code}')">
+                            <span class="copy-hint">Click to copy</span>
+                            ${code}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('offers-list').innerHTML = '<p style="color:red;">Error loading offers.</p>';
+            }
+        }
+
+        function copyCoupon(code) {
+            navigator.clipboard.writeText(code);
+            const cards = document.querySelectorAll('.coupon-code');
+            cards.forEach(card => {
+                if(card.innerText.includes(code)) {
+                    const originalText = card.innerHTML;
+                    card.innerHTML = 'COPIED!';
+                    card.style.borderColor = '#4CAF50';
+                    card.style.color = '#4CAF50';
+                    setTimeout(() => {
+                        card.innerHTML = originalText;
+                        card.style.borderColor = '';
+                        card.style.color = '';
+                    }, 2000);
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'index.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', loadOffers);
+    </script>
+</body>
+</html>

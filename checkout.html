@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — Secure Payment</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --bg-card: #0c0c0e;
+            --accent-blue: #00D6FF;
+            --text-secondary: #a1a1aa;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            padding-top: 80px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .checkout-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkout-section {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-blue);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            background: #151518;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+
+        /* Payment UI */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .payment-method {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method.active {
+            border-color: var(--accent-blue);
+            background: rgba(0, 214, 255, 0.05);
+        }
+
+        .upi-qr-container {
+            text-align: center;
+            margin-top: 25px;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            display: none; /* Shown when UPI selected */
+        }
+
+        #qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 15px;
+        }
+
+        .qr-instruction {
+            color: #000;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Order Summary Card */
+        .order-summary {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .total-row {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 20px;
+            padding-top: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00D6FF 0%, #0077FF 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 214, 255, 0.3);
+        }
+
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .success-card {
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar solid-nav" id="navbar">
+        <div class="nav-content">
+            <div class="nav-brand">
+                <a href="index.html" style="color:white; text-decoration:none;">LOQ</a>
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" style="color:white; text-decoration:none;">← Back to Cart</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="checkout-container">
+        <div class="main-checkout">
+            <!-- Shipping Section -->
+            <div class="checkout-section">
+                <h2 class="section-title"><span>📍</span> Shipping Address</h2>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full-name" placeholder="John Doe">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+91 00000 00000">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="john@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Complete Address</label>
+                    <textarea id="address" rows="3" placeholder="House No, Street, Landmark..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" placeholder="Mumbai">
+                    </div>
+                    <div class="form-group">
+                        <label>Pincode</label>
+                        <input type="text" id="pincode" placeholder="400001">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="checkout-section">
+                <h2 class="section-title"><span>💳</span> Payment Method</h2>
+                <div class="payment-methods">
+                    <div class="payment-method active" onclick="selectPayment('upi')">
+                        <input type="radio" name="pay" checked>
+                        <div>
+                            <div style="font-weight:600;">UPI Payment (QR Code)</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">Pay instantly using GPay, PhonePe, or Paytm</div>
+                        </div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment('cod')">
+                        <input type="radio" name="pay">
+                        <div>
+                            <div style="font-weight:600;">Cash on Delivery</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">Pay when your LOQ arrives</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="payment-container" style="margin-top:20px; text-align:center;">
+                    <!-- Razorpay button will appear here -->
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">Payment will be securely processed via Razorpay.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Sidebar -->
+        <div class="order-summary">
+            <h2 class="summary-title" style="margin-bottom:20px; font-size:1.1rem;">Order Summary</h2>
+            <div id="summary-items">
+                <!-- Items list -->
+            </div>
+            
+            <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.05); padding-top:20px;">
+                <div class="summary-item">
+                    <span>Subtotal</span>
+                    <span id="sub-total">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Shipping</span>
+                    <span style="color:#22c55e;">FREE</span>
+                </div>
+                <div class="summary-item total-row">
+                    <span>Total Amount</span>
+                    <span id="final-total">₹0</span>
+                </div>
+            </div>
+
+            <button class="confirm-btn" id="place-order-btn" onclick="placeOrder()">Confirm & Place Order</button>
+        </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="success-overlay" id="success-screen">
+        <div class="success-card">
+            <div class="success-icon">🎉</div>
+            <h1 style="font-size:2.5rem; margin-bottom:10px;">Order Placed!</h1>
+            <p style="color:var(--text-secondary); margin-bottom:30px;">Your Lenovo LOQ is being prepared for shipment. A confirmation email has been sent to your address.</p>
+            <div id="order-id-box" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:30px;">
+                Order ID: <span id="disp-order-id" style="color:var(--accent-blue); font-weight:700;">#000000</span>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="downloadBill()" class="btn-primary" style="background:rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">📄 Download Bill</button>
+                <a href="index.html" class="btn-primary" style="display:inline-block; padding:15px 40px;">Return Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+    <script>
+        // --- RAZORPAY CONFIG (Coming Soon) ---
+        // ---------------------
+
+        let totalAmount = 0;
+        let lastOrderId = null;
+
+        function loadCheckout() {
+            const items = getCartItems();
+            const summaryList = document.getElementById('summary-items');
+            const subTotalEl = document.getElementById('sub-total');
+            const finalTotalEl = document.getElementById('final-total');
+            const user = localStorage.getItem('user');
+            const email = localStorage.getItem('userEmail');
+
+            if (items.length === 0) {
+                window.location.href = 'cart.html';
+                return;
+            }
+
+            if (user) document.getElementById('full-name').value = user;
+            if (email) document.getElementById('email').value = email;
+
+            let html = '';
+            let subtotal = 0;
+
+            items.forEach(item => {
+                const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+                subtotal += price * item.quantity;
+                html += `
+                    <div class="summary-item" style="margin-bottom:10px;">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>₹${(price * item.quantity).toLocaleString('en-IN')}</span>
+                    </div>
+                `;
+            });
+
+            summaryList.innerHTML = html;
+            subTotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+            finalTotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+            totalAmount = subtotal;
+        }
+
+        function selectPayment(type) {
+            const methods = document.querySelectorAll('.payment-method');
+            methods.forEach(m => m.classList.remove('active'));
+            
+            if (type === 'upi') {
+                methods[0].classList.add('active');
+                methods[0].querySelector('input').checked = true;
+            } else {
+                methods[1].classList.add('active');
+                methods[1].querySelector('input').checked = true;
+            }
+        }
+
+        async function placeOrder() {
+            const name = document.getElementById('full-name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const pincode = document.getElementById('pincode').value;
+            const email = document.getElementById('email').value;
+
+            if (!name || !phone || !address || !city || !pincode) {
+                alert('Please fill in all shipping details.');
+                return;
+            }
+
+            const btn = document.getElementById('place-order-btn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            const orderData = {
+                user: name,
+                userEmail: email,
+                phone: phone,
+                address: `${address}, ${city} - ${pincode}`,
+                items: getCartItems(),
+                total: `₹${totalAmount.toLocaleString('en-IN')}`,
+                paymentMethod: document.querySelector('input[name="pay"]:checked').parentElement.innerText.split('\n')[0],
+                status: 'Confirmed'
+            };
+
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    lastOrderId = data.orderId;
+                    document.getElementById('disp-order-id').textContent = `#${data.orderId}`;
+                    document.getElementById('success-screen').style.display = 'flex';
+                    clearCart();
+                } else {
+                    alert('Order failed: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirm & Place Order';
+            }
+        }
+
+        function downloadBill() {
+            const orderId = lastOrderId || '000000';
+            const name = document.getElementById('full-name').value;
+            const date = new Date().toLocaleDateString();
+            
+            let billContent = `
+=========================================
+          LENOVO LOQ - INVOICE
+=========================================
+Order ID: #${orderId}
+Date: ${date}
+Customer: ${name}
+Total Paid: ₹${totalAmount.toLocaleString('en-IN')}
+Status: PAID
+
+Thank you for choosing Lenovo LOQ!
+=========================================
+            `;
+            
+            const blob = new Blob([billContent], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `LOQ_Bill_${orderId}.txt`;
+            link.click();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCheckout);
+    </script>
+</body>
+</html>

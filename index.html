@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenovo LOQ 15 - Power for the New Guard</title>
+    <meta name="description"
+        content="Experience the ultimate gaming performance with the Lenovo LOQ 15. Accelerated intelligence, uncompromised frames, and pure speed.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script> 
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
+    <style>
+        .login-popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .login-popup-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .login-popup-box {
+            background: rgba(20, 20, 20, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+            position: relative;
+        }
+        .login-popup-overlay.active .login-popup-box {
+            transform: translateY(0);
+        }
+        .login-popup-close {
+            position: absolute;
+            top: 15px; right: 18px;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .login-popup-close:hover { color: #fff; }
+        .login-popup-box h3 {
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+        }
+        .login-popup-box .popup-subtitle {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 22px;
+            line-height: 1.4;
+        }
+        .popup-input {
+            display: block;
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        .popup-input:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .popup-input::placeholder { color: #666; }
+        .popup-btn {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+        .popup-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
+        .popup-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .popup-btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .popup-link {
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .popup-link:hover { color: #fff; }
+        .popup-error {
+            color: #F44336;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            min-height: 18px;
+        }
+        .popup-success {
+            color: #4CAF50;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+
+        /* Step transitions */
+        .popup-step {
+            display: none;
+        }
+        .popup-step.active {
+            display: block;
+            animation: fadeSlideIn 0.35s ease forwards;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Success checkmark */
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: popIn 0.4s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;">
+                <div class="user-menu-wrapper">
+                    <a href="profile.html" class="user-icon-btn" title="User Menu">👤</a>
+                    <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">👤 Account</a>
+                        <a href="orders.html" class="dropdown-item">📦 Orders</a>
+                        <a href="offers.html" class="dropdown-item">🏷️ Offers & Discounts</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="logout()" class="dropdown-item" style="color: #ff3b30;">🚪 Logout</a>
+                    </div>
+                </div>
+                <a href="index.html" style="color:white; text-decoration:none; margin-left: 15px;">LOQ</a>
+            </div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html">Cooling</a>
+                <a href="specs.html">Specs</a>
+
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon-wrapper" title="Shopping Cart">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="purchase.html" class="btn-primary">Experience Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="canvas-container">
+        <video id="hero-video" src="assets/loqlaptop.mp4" playsinline webkit-playsinline muted preload="auto"></video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <main class="scrolly-container">
+        <!-- 0-15% The Hero -->
+        <section class="step hero-step" id="step-1">
+            <div class="content-center">
+                <h1 class="headline">Lenovo LOQ</h1>
+                <p class="subheadline">Built for performance</p>
+            </div>
+        </section>
+
+        <!-- 15-35% The Reveal -->
+        <section class="step" id="step-2">
+            <div class="content-right">
+                <h2 class="section-title">Accelerated<br>Intelligence.</h2>
+                <p class="section-text">Powered by the latest Intel Core i7 processor and NVIDIA GeForce RTX 4060
+                    graphics.<br>Your edge in every game.</p>
+                <p class="section-text highlight-text">Up to 120W TGP</p>
+            </div>
+        </section>
+
+        <!-- 35-65% The Feature Showcase -->
+        <section class="step" id="step-3">
+            <div class="content-left">
+                <h2 class="section-title">Uncompromised<br>Frames.</h2>
+                <p class="section-text">8GB GDDR6 VRAM. Cutting-edge ray tracing.<br>Every frame rendered at its
+                    absolute best.</p>
+                <p class="section-text highlight-text">RTX 4060</p>
+
+            </div>
+        </section>
+
+        <!-- 65-85% The Visual Experience -->
+        <section class="step" id="step-4">
+            <div class="content-left">
+                <h2 class="section-title">Pure Color.<br>Pure Speed.</h2>
+                <p class="section-text">100% sRGB color accuracy. 144Hz refresh rate.<br>Fluid, tear-free visuals for
+                    ultimate immersion.</p>
+                <p class="section-text highlight-text">512GB NVMe SSD</p>
+            </div>
+        </section>
+
+        <!-- 85-100% Reassembly & CTA -->
+        <section class="step cta-step" id="step-5">
+            <div class="content-center">
+                <h2 class="cta-headline">Level Up Your Play.</h2>
+                <p class="cta-subheadline">LOQ: Built for the Bold.</p>
+
+            </div>
+        </section>
+    </main>
+
+    <section class="support-section">
+        <div class="support-grid">
+            <div class="support-card">
+                <span class="support-icon">🛠️</span>
+                <h3>Technical Support</h3>
+                <p>Troubleshoot hardware, update drivers, or get expert technical guidance for your LOQ.</p>
+                <a href="#" class="support-link">Get Help →</a>
+            </div>
+            <div class="support-card">
+                <span class="support-icon">📦</span>
+                <h3>Orders & Delivery</h3>
+                <p>Track your shipment, manage returns, or check your current order status.</p>
+                <a href="orders.html" class="support-link">Track Order →</a>
+            </div>
+            <div class="support-card">
+                <span class="support-icon">💬</span>
+                <h3>Contact Expert</h3>
+                <p>Chat with our gaming specialists for personalized configuration advice.</p>
+                <a href="#" class="support-link">Start Chat →</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2>LOQ</h2>
+                <p>Empowering the new guard of gamers with uncompromised performance and intelligence.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Products</h4>
+                <ul>
+                    <li><a href="performance.html">Performance</a></li>
+                    <li><a href="display.html">Visuals</a></li>
+                    <li><a href="cooling.html">Thermal</a></li>
+                    <li><a href="specs.html">Tech Specs</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="orders.html">Track Order</a></li>
+                    <li><a href="offers.html">Offers</a></li>
+                    <li><a href="#">Warranty</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="#">Live Chat</a></li>
+                    <li><a href="#">Email Us</a></li>
+                    <li><a href="#">1800-LOQ-GAME</a></li>
+                    <li><a href="#">Find a Store</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Lenovo LOQ. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" class="social-link">𝕏</a>
+                <a href="#" class="social-link">📸</a>
+                <a href="#" class="social-link">📹</a>
+                <a href="#" class="social-link">🎮</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIN POPUP (Simple - no OTP needed, email verified at registration) -->
+    <div class="login-popup-overlay" id="home-login-popup">
+        <div class="login-popup-box">
+            <span class="login-popup-close" onclick="closeLoginPopup()">✕</span>
+
+            <!-- Login Credentials -->
+            <div class="popup-step active" id="popup-step-login">
+                <h3>Welcome to LOQ</h3>
+                <p class="popup-subtitle">Sign in to access exclusive configurations and save your builds.</p>
+                <div id="login-error" class="popup-error"></div>
+                <input type="email" class="popup-input" id="popup-email" placeholder="Email address" autocomplete="email">
+                <input type="password" class="popup-input" id="popup-password" placeholder="Password" autocomplete="current-password">
+                <button class="popup-btn" id="popup-login-btn" onclick="handlePopupLogin()">Login</button>
+                <a href="login.html" class="popup-link">Don't have an account? Register</a>
+            </div>
+
+            <!-- Success -->
+            <div class="popup-step" id="popup-step-success">
+                <div class="success-icon">✅</div>
+                <h3>You're In!</h3>
+                <p class="popup-subtitle">Welcome back, <strong id="success-username" style="color:#fff;"></strong>.</p>
+                <button class="popup-btn" onclick="closeLoginPopup()">Continue Browsing</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+        function closeLoginPopup() {
+            document.getElementById('home-login-popup').classList.remove('active');
+        }
+
+        function showStep(stepId) {
+            document.querySelectorAll('.popup-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+        }
+
+        // --- Direct Login (no OTP) ---
+        async function handlePopupLogin() {
+            const email = document.getElementById('popup-email').value.trim();
+            const password = document.getElementById('popup-password').value;
+            const errorEl = document.getElementById('login-error');
+            const btn = document.getElementById('popup-login-btn');
+            errorEl.textContent = '';
+
+            if (!email || !password) {
+                errorEl.textContent = 'Please enter both email and password.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+
+            try {
+                const res = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errorEl.textContent = data.error || 'Invalid credentials.';
+                    btn.disabled = false;
+                    btn.textContent = 'Login';
+                    return;
+                }
+
+                // Login successful — save and show success
+                localStorage.setItem('user', data.username);
+                localStorage.setItem('userEmail', email);
+                document.getElementById('success-username').textContent = data.username;
+                showStep('popup-step-success');
+
+            } catch (err) {
+                errorEl.textContent = 'Server error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        }
+
+        // Allow Enter key on login form
+        document.getElementById('popup-password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handlePopupLogin();
+        });
+        document.getElementById('popup-email').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('popup-password').focus();
+        });
+
+        // --- Show popup on load if not logged in ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                setTimeout(() => {
+                    document.getElementById('home-login-popup').classList.add('active');
+                }, 1500);
+            }
+        });
+    </script>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="cart.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

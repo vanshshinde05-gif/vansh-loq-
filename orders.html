@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Lenovo LOQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .orders-container {
+            max-width: 1000px;
+            margin: 120px auto 60px;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            border-color: rgba(0, 214, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .order-id {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .order-date {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .order-content {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .order-image {
+            width: 120px;
+            height: 120px;
+            background: #111;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .order-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .order-info p {
+            color: #aaa;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .delivery-status-container {
+            margin-top: 20px;
+        }
+
+        .status-bar-bg {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            position: relative;
+            margin: 25px 0 10px;
+        }
+
+        .status-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--accent);
+            transition: width 1s ease-out;
+        }
+
+        .status-points {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%);
+        }
+
+        .status-point {
+            width: 12px;
+            height: 12px;
+            background: #1a1a1a;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .status-point.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .status-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .status-label {
+            font-size: 0.7rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .status-label.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .delivery-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(0, 214, 255, 0.1);
+            color: var(--accent);
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-orders h2 {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;">
+                <div class="user-menu-wrapper">
+                    <a href="profile.html" class="user-icon-btn" title="User Menu">👤</a>
+                    <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">👤 Account</a>
+                        <a href="orders.html" class="dropdown-item">📦 Orders</a>
+                        <a href="offers.html" class="dropdown-item">🏷️ Offers & Discounts</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="logout()" class="dropdown-item" style="color: #ff3b30;">🚪 Logout</a>
+                    </div>
+                </div>
+                <a href="index.html" style="color:white; text-decoration:none; margin-left: 15px;">LOQ</a>
+            </div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html">Cooling</a>
+                <a href="specs.html">Specs</a>
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon-wrapper" title="Shopping Cart">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="purchase.html" class="btn-primary">Experience Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="orders-container">
+        <div class="page-header">
+            <h1>My Orders</h1>
+            <p style="color: #666;">Track and manage your Lenovo LOQ builds.</p>
+        </div>
+
+        <div id="orders-list">
+            <!-- Orders will be loaded here -->
+            <div class="order-card">
+                <div style="height: 200px;" class="skeleton"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+    <script>
+        async function loadOrders() {
+            let userEmail = localStorage.getItem('userEmail');
+            let username = localStorage.getItem('user');
+
+            // If we have a username but no email, try to fetch the email from the backend
+            if (!userEmail && username) {
+                try {
+                    const userRes = await fetch(`http://localhost:3000/api/user/${username}`);
+                    if (userRes.ok) {
+                        const userData = await userRes.json();
+                        userEmail = userData.email;
+                        localStorage.setItem('userEmail', userEmail);
+                    }
+                } catch (err) {
+                    console.error('Failed to auto-recover email:', err);
+                }
+            }
+
+            if (!userEmail) {
+                document.getElementById('orders-list').innerHTML = `
+                    <div class="empty-orders">
+                        <h2>Please log in to view your orders.</h2>
+                        <a href="index.html" class="btn-primary">Login Now</a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/user-orders?email=${userEmail}`);
+                const orders = await res.json();
+
+                const listEl = document.getElementById('orders-list');
+                
+                if (orders.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="empty-orders">
+                            <h2>You haven't placed any orders yet.</h2>
+                            <p style="color: #666; margin-bottom: 30px;">Your dream setup is just a few clicks away.</p>
+                            <a href="purchase.html" class="btn-primary">Build Your LOQ</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render orders
+                listEl.innerHTML = orders.reverse().map(order => {
+                    const statuses = ["Confirmed", "Processing", "Shipped", "Out for Delivery", "Delivered"];
+                    // Mock progress based on order date (newer = earlier status)
+                    const orderDate = new Date(order.date);
+                    const now = new Date();
+                    const hoursDiff = (now - orderDate) / (1000 * 60 * 60);
+                    
+                    let statusIndex = 0;
+                    if (hoursDiff > 48) statusIndex = 4;
+                    else if (hoursDiff > 24) statusIndex = 3;
+                    else if (hoursDiff > 12) statusIndex = 2;
+                    else if (hoursDiff > 2) statusIndex = 1;
+
+                    const currentStatus = statuses[statusIndex];
+                    const progressPercent = (statusIndex / (statuses.length - 1)) * 100;
+                    
+                    const dateStr = orderDate.toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+
+                    const items = order.items || [{ 
+                        name: "Lenovo LOQ 15", 
+                        price: order.totalPrice, 
+                        image: order.productImage || "loqcart.png" 
+                    }];
+
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-id">ORDER #${order.id}</span>
+                                <span class="order-date">Placed on ${dateStr}</span>
+                            </div>
+                            <div class="order-content">
+                                <div class="order-image">
+                                    <img src="../${items[0].image}" alt="Product">
+                                </div>
+                                <div class="order-info">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div>
+                                            <h3>${items[0].name}</h3>
+                                            <p>${items.length > 1 ? `+ ${items.length - 1} other items` : 'Custom Gaming Configuration'}</p>
+                                        </div>
+                                        <div class="order-price" style="font-weight: 700; color: #fff; font-size: 1.2rem;">
+                                            ₹${order.totalPrice.toLocaleString('en-IN')}
+                                        </div>
+                                    </div>
+
+                                    <div class="delivery-status-container">
+                                        <div class="delivery-status">
+                                            <div class="status-dot"></div>
+                                            ${currentStatus}
+                                        </div>
+                                        
+                                        <div class="status-bar-bg">
+                                            <div class="status-bar-fill" style="width: ${progressPercent}%"></div>
+                                            <div class="status-points">
+                                                ${statuses.map((_, i) => `
+                                                    <div class="status-point ${i <= statusIndex ? 'active' : ''}"></div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="status-labels">
+                                            <span class="status-label ${statusIndex >= 0 ? 'active' : ''}">Confirmed</span>
+                                            <span class="status-label ${statusIndex >= 2 ? 'active' : ''}">Shipped</span>
+                                            <span class="status-label ${statusIndex >= 4 ? 'active' : ''}">Delivered</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('orders-list').innerHTML = '<p style="color: #F44336;">Failed to load orders. Please try again later.</p>';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'index.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>

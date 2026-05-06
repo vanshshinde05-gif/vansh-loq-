@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register - Lenovo LOQ 15</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-main {
+            padding-top: 100px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050505;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(64, 134, 255, 0.1) 0%, transparent 70%);
+            z-index: 0;
+            top: -100px;
+            right: -100px;
+        }
+
+        .auth-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            color: #888;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .auth-tab.active {
+            color: #fff;
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+        }
+
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+
+        .form-group input {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-auth {
+            padding: 15px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .auth-message {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .success-text { color: #4CAF50; }
+        .error-text { color: #F44336; }
+
+        /* OTP Input Boxes */
+        .otp-input-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .otp-digit {
+            width: 46px;
+            height: 54px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', monospace;
+        }
+        .otp-digit:focus {
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        .otp-timer {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .otp-timer span { color: #fff; font-weight: 600; }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="page-auth">
+    <nav class="navbar solid-nav" id="navbar">
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;"><a href="profile.html" title="My Profile" style="color:white; text-decoration:none; font-size:1.4rem; margin-right:15px; display:flex; align-items:center;">👤</a><a href="index.html" style="color:white; text-decoration:none;">LOQ</a></div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html">Cooling</a>
+                <a href="specs.html">Specs</a>
+                <a href="login.html" class="active">Login</a>
+            </div>
+            <a href="purchase.html" class="btn-primary">Experience Now</a>
+        </div>
+    </nav>
+
+    <main class="auth-main">
+        <div class="auth-container fade-in">
+            <div class="auth-glow"></div>
+            <div class="auth-content">
+                <div class="auth-tabs" id="auth-tabs">
+                    <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+                    <div class="auth-tab" onclick="switchTab('register')">Register</div>
+                </div>
+
+                <!-- ============ LOGIN FORM (Simple, no OTP) ============ -->
+                <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" required placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-auth" id="login-btn">Login</button>
+                    <div id="login-message" class="auth-message"></div>
+                </form>
+
+                <!-- ============ REGISTER FORM (with OTP verification) ============ -->
+                <div id="register-form" class="auth-form">
+
+                    <!-- Step 1: Registration Details -->
+                    <div id="reg-step-form">
+                        <form id="reg-form-inner" onsubmit="handleRegisterStep1(event)">
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label for="reg-username">Username</label>
+                                <input type="text" id="reg-username" required placeholder="Your gaming tag">
+                                <span id="username-status" style="font-size: 0.8rem; margin-top: -5px;"></span>
+                            </div>
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label for="reg-email">Email Address</label>
+                                <input type="email" id="reg-email" required placeholder="you@example.com">
+                                <span id="email-status" style="font-size: 0.8rem; margin-top: -5px;"></span>
+                            </div>
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label for="reg-password">Password</label>
+                                <input type="password" id="reg-password" required placeholder="Create a strong password">
+                            </div>
+                            <button type="submit" class="btn-auth" id="reg-submit-btn">Create Account</button>
+                            <div id="register-message" class="auth-message"></div>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: OTP Verification -->
+                    <div id="reg-step-otp" style="display:none;">
+                        <div style="text-align:center; margin-bottom:20px;">
+                            <div style="font-size:2.5rem; margin-bottom:10px;">📧</div>
+                            <h3 style="color:#fff; margin-bottom:8px; font-size:1.3rem;">Verify Your Email</h3>
+                            <p style="color:#888; font-size:0.85rem;">We've sent a 6-digit verification code to<br><strong id="otp-email-display" style="color:#fff;"></strong></p>
+                        </div>
+                        <div id="otp-error" style="color:#F44336; font-size:0.8rem; min-height:18px; text-align:center; margin-bottom:10px;"></div>
+                        <div class="otp-input-group">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="0">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="1">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="2">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="3">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="4">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="5">
+                        </div>
+                        <div class="otp-timer" id="otp-timer">Code expires in <span id="otp-countdown">5:00</span></div>
+                        <button type="button" class="btn-auth" id="verify-otp-btn" onclick="handleVerifyOTP()">Verify & Create Account</button>
+                        <div style="text-align:center; margin-top:12px;">
+                            <span id="resend-otp-link" style="color:#888; font-size:0.8rem; cursor:pointer; text-decoration:underline;" onclick="handleResendOTP()">Resend Code</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Registration Success -->
+                    <div id="reg-step-success" style="display:none; text-align:center;">
+                        <div style="font-size:3rem; margin-bottom:10px; animation: popIn 0.4s ease;">✅</div>
+                        <h3 style="color:#fff; margin-bottom:8px;">Account Created!</h3>
+                        <p style="color:#888; font-size:0.9rem;">Welcome, <strong id="success-username" style="color:#fff;"></strong>! Your email is verified.</p>
+                        <button type="button" class="btn-auth" style="margin-top:20px;" onclick="switchToLoginAfterRegister()">Continue to Login</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        gsap.from(".fade-in", { opacity: 0, y: 30, duration: 1, ease: "power3.out" });
+
+        // --- State ---
+        let pendingRegData = {}; // Stores username, email, password until OTP is verified
+        let otpTimerInterval = null;
+
+        // =============================================
+        // TAB SWITCHING
+        // =============================================
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('register-form').classList.add('active');
+                resetRegSteps(); // Always reset to form step when switching
+            }
+            // Clear messages
+            document.getElementById('login-message').innerText = '';
+            document.getElementById('register-message').innerText = '';
+        }
+
+        // =============================================
+        // REGISTER STEP MANAGEMENT
+        // =============================================
+        function resetRegSteps() {
+            document.getElementById('reg-step-form').style.display = 'block';
+            document.getElementById('reg-step-otp').style.display = 'none';
+            document.getElementById('reg-step-success').style.display = 'none';
+            clearInterval(otpTimerInterval);
+            document.querySelectorAll('.otp-digit').forEach(d => d.value = '');
+        }
+
+        function showRegStep(step) {
+            document.getElementById('reg-step-form').style.display = 'none';
+            document.getElementById('reg-step-otp').style.display = 'none';
+            document.getElementById('reg-step-success').style.display = 'none';
+            const el = document.getElementById('reg-step-' + step);
+            el.style.display = 'block';
+            el.style.animation = 'fadeSlideIn 0.35s ease forwards';
+        }
+
+        function switchToLoginAfterRegister() {
+            resetRegSteps();
+            switchTab('login');
+            // Pre-fill the login email with the registered email
+            document.getElementById('login-email').value = pendingRegData.email || '';
+        }
+
+        // =============================================
+        // LOGIN (Simple — no OTP)
+        // =============================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const messageEl = document.getElementById('login-message');
+            const btn = document.getElementById('login-btn');
+            const originalText = btn.innerText;
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            messageEl.className = 'auth-message';
+            messageEl.innerText = '';
+            btn.innerText = 'Signing in...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    messageEl.classList.add('success-text');
+                    messageEl.innerText = 'Login successful! Redirecting...';
+                    localStorage.setItem('user', result.username);
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    messageEl.classList.add('error-text');
+                    messageEl.innerText = result.error || 'Invalid credentials.';
+                }
+            } catch (error) {
+                messageEl.classList.add('error-text');
+                messageEl.innerText = 'Server error. Make sure the backend is running.';
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // =============================================
+        // REGISTER STEP 1: Validate & Send OTP
+        // =============================================
+        async function handleRegisterStep1(e) {
+            e.preventDefault();
+            const messageEl = document.getElementById('register-message');
+            const btn = document.getElementById('reg-submit-btn');
+            const originalText = btn.innerText;
+
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            messageEl.className = 'auth-message';
+            messageEl.innerText = '';
+
+            if (!username || !email || !password) {
+                messageEl.classList.add('error-text');
+                messageEl.innerText = 'Please fill all fields.';
+                return;
+            }
+
+            btn.innerText = 'Checking...';
+            btn.disabled = true;
+
+            try {
+                // Check if email already exists
+                const emailCheck = await fetch('http://localhost:3000/api/check-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const emailData = await emailCheck.json();
+                if (emailData.exists) {
+                    messageEl.classList.add('error-text');
+                    messageEl.innerText = 'Email already registered. Please log in instead.';
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Check if username already exists
+                const usernameCheck = await fetch('http://localhost:3000/api/check-username', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const usernameData = await usernameCheck.json();
+                if (usernameData.exists) {
+                    messageEl.classList.add('error-text');
+                    messageEl.innerText = 'Username already taken. Try another.';
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // All good — store data temporarily and send OTP
+                pendingRegData = { username, email, password };
+                messageEl.classList.add('success-text');
+                messageEl.innerText = 'Sending verification code...';
+
+                await sendOTP(email);
+
+            } catch (error) {
+                messageEl.classList.add('error-text');
+                messageEl.innerText = 'Server error. Make sure the backend is running.';
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // =============================================
+        // SEND OTP
+        // =============================================
+        async function sendOTP(email) {
+            try {
+                const res = await fetch('http://localhost:3000/api/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('otp-email-display').textContent = email;
+                    document.getElementById('otp-error').textContent = '';
+                    showRegStep('otp');
+                    focusFirstOTPBox();
+                    startOTPTimer();
+                    // Hide tabs so user can't switch mid-verification
+                    document.getElementById('auth-tabs').style.display = 'none';
+                } else {
+                    document.getElementById('register-message').innerText = data.error || 'Failed to send OTP.';
+                    document.getElementById('register-message').className = 'auth-message error-text';
+                }
+            } catch (err) {
+                document.getElementById('register-message').innerText = 'Failed to send verification code.';
+                document.getElementById('register-message').className = 'auth-message error-text';
+            }
+        }
+
+        // =============================================
+        // VERIFY OTP → Then Register Account
+        // =============================================
+        async function handleVerifyOTP() {
+            const digits = document.querySelectorAll('.otp-digit');
+            let otp = '';
+            digits.forEach(d => otp += d.value);
+            const errorEl = document.getElementById('otp-error');
+            const btn = document.getElementById('verify-otp-btn');
+            errorEl.textContent = '';
+
+            if (otp.length < 6) {
+                errorEl.textContent = 'Please enter all 6 digits.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                // Step 1: Verify the OTP
+                const verifyRes = await fetch('http://localhost:3000/api/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingRegData.email, otp })
+                });
+                const verifyData = await verifyRes.json();
+
+                if (!verifyRes.ok) {
+                    errorEl.textContent = verifyData.error || 'Invalid OTP.';
+                    btn.disabled = false;
+                    btn.textContent = 'Verify & Create Account';
+                    return;
+                }
+
+                // Step 2: OTP verified! Now create the account
+                btn.textContent = 'Creating account...';
+                const regRes = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pendingRegData)
+                });
+                const regData = await regRes.json();
+
+                if (regRes.ok) {
+                    clearInterval(otpTimerInterval);
+                    document.getElementById('success-username').textContent = pendingRegData.username;
+                    showRegStep('success');
+                    // Show tabs again
+                    document.getElementById('auth-tabs').style.display = 'flex';
+                } else {
+                    errorEl.textContent = regData.error || 'Registration failed.';
+                }
+
+            } catch (err) {
+                errorEl.textContent = 'Server error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify & Create Account';
+            }
+        }
+
+        // =============================================
+        // RESEND OTP
+        // =============================================
+        async function handleResendOTP() {
+            const link = document.getElementById('resend-otp-link');
+            link.textContent = 'Sending...';
+            link.style.pointerEvents = 'none';
+            document.querySelectorAll('.otp-digit').forEach(d => d.value = '');
+            await sendOTP(pendingRegData.email);
+            link.textContent = 'Resend Code';
+            link.style.pointerEvents = 'auto';
+        }
+
+        // =============================================
+        // OTP INPUT AUTO-FOCUS & PASTE
+        // =============================================
+        function focusFirstOTPBox() {
+            const digits = document.querySelectorAll('.otp-digit');
+            if (digits[0]) digits[0].focus();
+        }
+
+        document.querySelectorAll('.otp-digit').forEach((input, idx, inputs) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value && idx < inputs.length - 1) {
+                    inputs[idx + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    inputs[idx - 1].focus();
+                }
+                if (e.key === 'Enter') {
+                    handleVerifyOTP();
+                }
+            });
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+                if (/^\d{6}$/.test(pasteData)) {
+                    inputs.forEach((inp, i) => inp.value = pasteData[i]);
+                    inputs[5].focus();
+                }
+            });
+        });
+
+        // =============================================
+        // OTP COUNTDOWN TIMER (5 minutes)
+        // =============================================
+        function startOTPTimer() {
+            clearInterval(otpTimerInterval);
+            let seconds = 300;
+            const countdownEl = document.getElementById('otp-countdown');
+
+            function update() {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                countdownEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+                if (seconds <= 0) {
+                    clearInterval(otpTimerInterval);
+                    countdownEl.textContent = 'Expired';
+                    document.getElementById('otp-error').textContent = 'OTP expired. Please resend.';
+                }
+                seconds--;
+            }
+            update();
+            otpTimerInterval = setInterval(update, 1000);
+        }
+
+        // =============================================
+        // REAL-TIME USERNAME CHECK
+        // =============================================
+        document.getElementById('reg-username').addEventListener('blur', async (e) => {
+            const username = e.target.value.trim();
+            const statusEl = document.getElementById('username-status');
+            
+            if (!username) { statusEl.innerText = ''; return; }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/check-username', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.exists) {
+                        statusEl.innerText = 'Username is already taken.';
+                        statusEl.className = 'error-text';
+                    } else {
+                        statusEl.innerText = 'Username is available';
+                        statusEl.className = 'success-text';
+                    }
+                }
+            } catch (error) {
+                console.error('Check username error:', error);
+            }
+        });
+
+        // =============================================
+        // REAL-TIME EMAIL CHECK
+        // =============================================
+        document.getElementById('reg-email').addEventListener('blur', async (e) => {
+            const email = e.target.value.trim();
+            const statusEl = document.getElementById('email-status');
+            
+            if (!email) { statusEl.innerText = ''; return; }
+            if (!email.includes('@')) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/check-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.exists) {
+                        statusEl.innerText = 'Email already registered. Please log in instead.';
+                        statusEl.className = 'error-text';
+                    } else {
+                        statusEl.innerText = 'Email is available';
+                        statusEl.className = 'success-text';
+                    }
+                }
+            } catch (error) {
+                console.error('Check email error:', error);
+            }
+        });
+
+        // Allow Enter key on login form
+        document.getElementById('login-password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('login-form').requestSubmit();
+        });
+    </script>
+</body>
+</html>

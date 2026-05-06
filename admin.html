@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — LOQ Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --border: rgba(255,255,255,0.06);
+            --border-active: rgba(255,255,255,0.15);
+            --text-primary: #f0f0f5;
+            --text-secondary: #6b6b80;
+            --text-muted: #4a4a5a;
+            --accent-green: #22c55e;
+            --accent-green-dim: rgba(34,197,94,0.15);
+            --accent-red: #ef4444;
+            --accent-red-dim: rgba(239,68,68,0.15);
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: rgba(59,130,246,0.12);
+            --accent-amber: #f59e0b;
+            --accent-amber-dim: rgba(245,158,11,0.12);
+            --accent-purple: #a855f7;
+            --accent-purple-dim: rgba(168,85,247,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: rgba(12,12,18,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .admin-logo .icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .admin-logo h1 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .admin-logo h1 span {
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-left: 6px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-actions a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .header-actions a:hover {
+            color: var(--text-primary);
+            border-color: var(--border-active);
+            background: var(--bg-card);
+        }
+
+        /* ===== LAYOUT ===== */
+        .admin-body {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* ===== SERVER STATUS BAR ===== */
+        .server-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+        }
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 12px var(--accent-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .status-dot.offline {
+            background: var(--accent-red);
+            box-shadow: 0 0 12px var(--accent-red);
+            animation: none;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .status-text h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .status-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .status-right {
+            display: flex;
+            gap: 10px;
+        }
+        .status-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'Inter', sans-serif;
+        }
+        .status-btn:hover { transform: translateY(-1px); }
+        .btn-refresh {
+            background: var(--accent-blue-dim);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59,130,246,0.25);
+        }
+        .btn-refresh:hover { background: rgba(59,130,246,0.2); }
+        .btn-shutdown {
+            background: var(--accent-red-dim);
+            color: var(--accent-red);
+            border: 1px solid rgba(239,68,68,0.25);
+        }
+        .btn-shutdown:hover { background: rgba(239,68,68,0.3); }
+
+        /* ===== OFFLINE OVERLAY ===== */
+        .offline-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5,5,10,0.92);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        .offline-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .offline-overlay .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .offline-overlay h2 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        .offline-overlay p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 500px;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        .offline-overlay code {
+            display: inline-block;
+            margin-top: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-green);
+            letter-spacing: 0.03em;
+        }
+        .offline-overlay .hint {
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== STAT CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            border-color: var(--border-active);
+            background: var(--bg-card-hover);
+        }
+        .stat-card .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 4px;
+        }
+        .stat-card .stat-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .stat-icon.blue { background: var(--accent-blue-dim); }
+        .stat-icon.green { background: var(--accent-green-dim); }
+        .stat-icon.amber { background: var(--accent-amber-dim); }
+        .stat-icon.purple { background: var(--accent-purple-dim); }
+
+        /* ===== DATA SECTIONS ===== */
+        .data-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-header h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header h2 .badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--accent-blue-dim);
+            color: var(--accent-blue);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-danger {
+            background: var(--accent-red-dim);
+            color: var(--accent-red);
+            border: 1px solid rgba(239,68,68,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-danger:hover {
+            background: rgba(239,68,68,0.25);
+        }
+
+        /* ===== TABLE ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead th {
+            text-align: left;
+            padding: 14px 24px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.01);
+        }
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        .data-table tbody tr:last-child { border-bottom: none; }
+        .data-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+        .data-table td {
+            padding: 14px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            vertical-align: middle;
+        }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 500; }
+        .data-table .id-cell {
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .delete-btn {
+            background: transparent;
+            border: 1px solid rgba(239,68,68,0.2);
+            color: var(--accent-red);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .delete-btn:hover {
+            background: var(--accent-red-dim);
+        }
+
+        .empty-state {
+            padding: 50px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .empty-state .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-active);
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast.success { border-left: 3px solid var(--accent-green); }
+        .toast.error { border-left: 3px solid var(--accent-red); }
+
+        /* ===== CONFIRM MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px);
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-active);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.25s;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-box h3 {
+            margin-bottom: 8px;
+            font-size: 1.15rem;
+        }
+        .modal-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .modal-btn.cancel:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+        .modal-btn.confirm-danger {
+            background: var(--accent-red);
+            color: #fff;
+        }
+        .modal-btn.confirm-danger:hover { background: #dc2626; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .admin-body { padding: 20px 16px; }
+            .data-table { font-size: 0.8rem; }
+            .data-table th, .data-table td { padding: 10px 14px; }
+        }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .server-status-bar { flex-direction: column; gap: 16px; text-align: center; }
+            .section-header { flex-direction: column; gap: 12px; }
+            .admin-header { padding: 14px 16px; }
+        }
+
+        /* ===== LOADING SHIMMER ===== */
+        .shimmer {
+            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.04) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="admin-header">
+        <div class="admin-logo">
+            <div class="icon">⚡</div>
+            <h1>LOQ Admin <span>Control Panel</span></h1>
+        </div>
+        <div class="header-actions">
+            <a href="index.html">🌐 View Site</a>
+            <a href="purchase.html">🛒 Purchase Page</a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-body">
+
+        <!-- SERVER STATUS -->
+        <div class="server-status-bar" id="server-status-bar">
+            <div class="status-left">
+                <div class="status-dot" id="status-dot"></div>
+                <div class="status-text">
+                    <h3 id="status-title">Server Online</h3>
+                    <p id="status-detail">Uptime: loading...</p>
+                </div>
+            </div>
+            <div class="status-right">
+                <button class="status-btn btn-refresh" onclick="refreshAll()">🔄 Refresh Data</button>
+                <button class="status-btn btn-shutdown" id="shutdown-btn" onclick="confirmAction('shutdown', '⚠️ Shutdown Server', 'This will stop the server immediately. The website and all APIs will go offline. You will need to manually restart it from the terminal.')">⏻ Shutdown</button>
+            </div>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">👥</div>
+                <div class="stat-value" id="stat-users">—</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📦</div>
+                <div class="stat-value" id="stat-orders">—</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber">⏱️</div>
+                <div class="stat-value" id="stat-uptime">—</div>
+                <div class="stat-label">Server Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">🔌</div>
+                <div class="stat-value" id="stat-port">—</div>
+                <div class="stat-label">Port</div>
+            </div>
+        </div>
+
+        <!-- USERS TABLE -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2>👥 Registered Users <span class="badge" id="users-badge">0</span></h2>
+                <div class="section-actions">
+                    <button class="btn-danger" onclick="confirmAction('clear-users', 'Clear All Users', 'This will permanently delete all registered users. This action cannot be undone.')">🗑️ Clear All</button>
+                </div>
+            </div>
+            <div id="users-table-container">
+                <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
+            </div>
+        </div>
+
+        <!-- ORDERS TABLE -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2>📦 Orders <span class="badge" id="orders-badge">0</span></h2>
+                <div class="section-actions">
+                    <button class="btn-danger" onclick="confirmAction('clear-orders', 'Clear All Orders', 'This will permanently delete all order records. This action cannot be undone.')">🗑️ Clear All</button>
+                </div>
+            </div>
+            <div id="orders-table-container">
+                <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
+            </div>
+        </div>
+
+        <!-- COUPON MANAGEMENT -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2>🎟️ Coupons <span class="badge" id="coupons-badge">0</span></h2>
+                <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">Manage discount codes for the checkout page.</p>
+            </div>
+            
+            <!-- Create Coupon Form -->
+            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <h4 style="margin-bottom: 15px; font-size: 0.9rem; text-transform: uppercase; color: #aaa;">Add New Coupon</h4>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <input type="text" id="new-coupon-code" placeholder="CODE (e.g. SUMMER25)" style="width:100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+                    </div>
+                    <div style="width: 150px;">
+                        <input type="number" id="new-coupon-discount" placeholder="Discount %" style="width:100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+                    </div>
+                    <button class="btn-primary" onclick="addCoupon()" style="padding: 0 25px;">➕ Create</button>
+                </div>
+            </div>
+
+            <div id="coupons-table-container">
+                <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
+            </div>
+        </div>
+
+        <!-- PRODUCT MANAGEMENT -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2>💻 Product Management</h2>
+                <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">Update product pricing and details shown on the website.</p>
+            </div>
+            
+            <div id="products-table-container">
+                <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box">
+            <h3 id="modal-title">Are you sure?</h3>
+            <p id="modal-message">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm-danger" id="modal-confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OFFLINE OVERLAY (shown after shutdown) -->
+    <div class="offline-overlay" id="offline-overlay">
+        <div class="offline-icon">🔴</div>
+        <h2>Server Stopped</h2>
+        <p>The server has been shut down from the admin panel. To bring it back online, open your terminal and run:</p>
+        <code>node server.js</code>
+        <p class="hint">Then refresh this page to reconnect.</p>
+    </div>
+
+    <script>
+        const BASE = window.location.origin;
+
+        // =============================================
+        // TOAST NOTIFICATIONS
+        // =============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = (type === 'success' ? '✅ ' : '❌ ') + message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // =============================================
+        // CONFIRM MODAL
+        // =============================================
+        let pendingAction = null;
+
+        function confirmAction(action, title, message) {
+            pendingAction = action;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirm-modal').classList.remove('active');
+            pendingAction = null;
+        }
+
+        document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+            if (!pendingAction) return;
+            const action = pendingAction;
+            closeModal();
+
+            // Handle shutdown separately
+            if (action === 'shutdown') {
+                await shutdownServer();
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BASE}/api/admin/${action}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message);
+                    refreshAll();
+                } else {
+                    showToast(data.error || 'Action failed', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        });
+
+        // =============================================
+        // SHUTDOWN SERVER
+        // =============================================
+        async function shutdownServer() {
+            try {
+                const res = await fetch(`${BASE}/api/admin/shutdown`, { method: 'POST' });
+                const data = await res.json();
+                showToast('Server shutting down...', 'success');
+                // Show offline overlay after a short delay
+                setTimeout(() => {
+                    document.getElementById('offline-overlay').classList.add('active');
+                }, 1500);
+            } catch (err) {
+                showToast('Failed to shutdown server', 'error');
+            }
+        }
+
+        // =============================================
+        // LOAD SERVER STATS
+        // =============================================
+        async function loadStats() {
+            try {
+                const res = await fetch(`${BASE}/api/admin/stats`);
+                const data = await res.json();
+
+                document.getElementById('stat-users').textContent = data.totalUsers;
+                document.getElementById('stat-orders').textContent = data.totalOrders;
+                document.getElementById('stat-uptime').textContent = data.serverUptime;
+                document.getElementById('stat-port').textContent = ':' + data.serverPort;
+                document.getElementById('status-title').textContent = 'Server Online';
+                document.getElementById('status-detail').textContent = `Port ${data.serverPort} · Uptime: ${data.serverUptime}`;
+                document.getElementById('status-dot').classList.remove('offline');
+                document.getElementById('users-badge').textContent = data.totalUsers;
+                document.getElementById('orders-badge').textContent = data.totalOrders;
+            } catch (err) {
+                document.getElementById('status-title').textContent = 'Server Offline';
+                document.getElementById('status-detail').textContent = 'Cannot reach the server. Is it running?';
+                document.getElementById('status-dot').classList.add('offline');
+                document.getElementById('stat-users').textContent = '—';
+                document.getElementById('stat-orders').textContent = '—';
+                document.getElementById('stat-uptime').textContent = '—';
+                document.getElementById('stat-port').textContent = '—';
+            }
+        }
+
+        // =============================================
+        // LOAD USERS TABLE
+        // =============================================
+        async function loadUsers() {
+            const container = document.getElementById('users-table-container');
+            try {
+                const res = await fetch(`${BASE}/api/admin/users`);
+                const users = await res.json();
+
+                if (users.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div>No registered users yet</div>';
+                    return;
+                }
+
+                let html = `<table class="data-table">
+                    <thead><tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>ID</th>
+                        <th>Region</th>
+                        <th>Action</th>
+                    </tr></thead><tbody>`;
+
+                users.forEach(u => {
+                    html += `<tr>
+                        <td>${u.username}</td>
+                        <td>${u.email}</td>
+                        <td class="id-cell">${u.id}</td>
+                        <td>${u.region || '—'}</td>
+                        <td><button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>Failed to load users</div>';
+            }
+        }
+
+        // =============================================
+        // LOAD ORDERS TABLE
+        // =============================================
+        async function loadOrders() {
+            const container = document.getElementById('orders-table-container');
+            try {
+                const res = await fetch(`${BASE}/api/admin/orders`);
+                const orders = await res.json();
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div>No orders yet</div>';
+                    return;
+                }
+
+                let html = `<table class="data-table">
+                    <thead><tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Memory</th>
+                        <th>Storage</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr></thead><tbody>`;
+
+                orders.forEach(o => {
+                    const date = new Date(o.date).toLocaleString();
+                    html += `<tr>
+                        <td>${o.product}</td>
+                        <td>${o.price}</td>
+                        <td>${o.memory || '—'}</td>
+                        <td>${o.storage || '—'}</td>
+                        <td style="font-size:0.8rem;">${date}</td>
+                        <td><button class="delete-btn" onclick="deleteOrder(${o.id})">Delete</button></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>Failed to load orders</div>';
+            }
+        }
+
+        // =============================================
+        // DELETE ACTIONS
+        // =============================================
+        async function deleteUser(id) {
+            try {
+                const res = await fetch(`${BASE}/api/admin/user/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('User deleted');
+                    refreshAll();
+                } else {
+                    showToast(data.error || 'Failed to delete', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        async function deleteOrder(id) {
+            try {
+                const res = await fetch(`${BASE}/api/admin/order/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Order deleted');
+                    refreshAll();
+                } else {
+                    showToast(data.error || 'Failed to delete', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        // =============================================
+        // COUPON MANAGEMENT
+        // =============================================
+        async function loadCoupons() {
+            const container = document.getElementById('coupons-table-container');
+            const badge = document.getElementById('coupons-badge');
+            try {
+                const res = await fetch(`${BASE}/api/admin/coupons`);
+                const coupons = await res.json();
+                badge.textContent = coupons.length;
+
+                if (coupons.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🎟️</div>No coupons created yet</div>';
+                    return;
+                }
+
+                let html = `<table class="data-table">
+                    <thead><tr>
+                        <th>Code</th>
+                        <th>Discount %</th>
+                        <th>Action</th>
+                    </tr></thead><tbody>`;
+
+                coupons.forEach(c => {
+                    html += `<tr>
+                        <td style="font-family: monospace; font-weight: bold; color: var(--accent);">${c.code}</td>
+                        <td>${c.discount}% OFF</td>
+                        <td><button class="delete-btn" onclick="deleteCoupon('${c.code}')">Delete</button></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>Failed to load coupons</div>';
+            }
+        }
+
+        async function addCoupon() {
+            const codeInput = document.getElementById('new-coupon-code');
+            const discountInput = document.getElementById('new-coupon-discount');
+            const code = codeInput.value.trim();
+            const discount = discountInput.value;
+
+            if (!code || !discount) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BASE}/api/admin/coupons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, discount })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast('Coupon created!');
+                    codeInput.value = '';
+                    discountInput.value = '';
+                    loadCoupons();
+                } else {
+                    showToast(data.error || 'Failed to create coupon', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        async function deleteCoupon(code) {
+            if (!confirm(`Are you sure you want to delete the coupon "${code}"?`)) return;
+
+            try {
+                const res = await fetch(`${BASE}/api/admin/coupon/${code}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('Coupon deleted');
+                    loadCoupons();
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to delete', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        // =============================================
+        // PRODUCT MANAGEMENT
+        // =============================================
+        async function loadProducts() {
+            const container = document.getElementById('products-table-container');
+            try {
+                const res = await fetch(`${BASE}/api/products`);
+                const products = await res.json();
+
+                if (products.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">💻</div>No products found</div>';
+                    return;
+                }
+
+                let html = `<table class="data-table">
+                    <thead><tr>
+                        <th>Product</th>
+                        <th>Current Price</th>
+                        <th>New Selling Price (₹)</th>
+                        <th>New MRP (₹)</th>
+                        <th>Action</th>
+                    </tr></thead><tbody>`;
+
+                products.forEach(p => {
+                    html += `<tr>
+                        <td>
+                            <div style="font-weight: 600;">${p.name}</div>
+                            <div style="font-size: 0.75rem; color: #888;">${p.id}</div>
+                        </td>
+                        <td>
+                            <div style="color: var(--accent); font-weight: bold;">₹${p.price.toLocaleString('en-IN')}</div>
+                            <div style="font-size: 0.75rem; color: #888; text-decoration: line-through;">₹${(p.mrp || 0).toLocaleString('en-IN')}</div>
+                        </td>
+                        <td>
+                            <input type="number" id="price-input-${p.id}" value="${p.price}" style="width: 130px; padding: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #fff;">
+                        </td>
+                        <td>
+                            <input type="number" id="mrp-input-${p.id}" value="${p.mrp || 0}" style="width: 130px; padding: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #fff;">
+                        </td>
+                        <td>
+                            <button class="btn-primary" onclick="updateProduct('${p.id}')" style="padding: 6px 15px; font-size: 0.8rem;">Update</button>
+                        </td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>Failed to load products</div>';
+            }
+        }
+
+        async function updateProduct(id) {
+            const priceInput = document.getElementById(`price-input-${id}`);
+            const mrpInput = document.getElementById(`mrp-input-${id}`);
+            
+            if (!priceInput || !mrpInput) {
+                showToast('UI Error: Inputs not found', 'error');
+                return;
+            }
+
+            const price = priceInput.value;
+            const mrp = mrpInput.value;
+
+            console.log(`Attempting to update product ${id}: Price=${price}, MRP=${mrp}`);
+
+            try {
+                const res = await fetch(`${BASE}/api/admin/products/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, price, mrp })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast(data.message || 'Product updated successfully');
+                    loadProducts();
+                } else {
+                    console.error('Update failed:', data);
+                    showToast(data.error || 'Update failed', 'error');
+                }
+            } catch (err) {
+                console.error('Network/Server error:', err);
+                showToast('Connection error: Is the server running?', 'error');
+            }
+        }
+
+        // =============================================
+        // REFRESH ALL DATA
+        // =============================================
+        function refreshAll() {
+            loadStats();
+            loadUsers();
+            loadOrders();
+            loadCoupons();
+            loadProducts();
+        }
+
+        // Auto-refresh uptime every 30 seconds
+        setInterval(loadStats, 30000);
+
+        // Initial load
+        refreshAll();
+    </script>
+</body>
+</html>

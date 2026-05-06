@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Shopping Cart — Lenovo LOQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --bg-card: #0c0c0e;
+            --accent-blue: #00D6FF;
+            --text-secondary: #a1a1aa;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            padding-top: 100px;
+        }
+
+        .cart-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 20px;
+        }
+
+        .cart-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .cart-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .cart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cart Items */
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .item-img {
+            width: 120px;
+            height: 120px;
+            background: #151518;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .item-config {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .item-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quantity-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .quantity-val {
+            margin: 0 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .item-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+        }
+
+        .remove-item {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #ff4d4d;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .remove-item:hover {
+            opacity: 1;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+
+        .summary-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .summary-total {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
+            padding-top: 20px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* Coupon Section */
+        .coupon-section {
+            margin: 25px 0;
+        }
+
+        .coupon-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .coupon-input {
+            background: #151518;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: white;
+            flex: 1;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .apply-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .apply-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #00D6FF 0%, #0077FF 100%);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 214, 255, 0.3);
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .empty-cart-message h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .continue-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .coupon-success {
+            color: #22c55e;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar" style="opacity: 1;">
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;">
+                <div class="user-menu-wrapper">
+                    <a href="profile.html" class="user-icon-btn" title="User Menu">👤</a>
+                    <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">👤 Account</a>
+                        <a href="orders.html" class="dropdown-item">📦 Orders</a>
+                        <a href="offers.html" class="dropdown-item">🏷️ Offers & Discounts</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="logout()" class="dropdown-item" style="color: #ff3b30;">🚪 Logout</a>
+                    </div>
+                </div>
+                <a href="index.html" style="color:white; text-decoration:none; margin-left: 15px;">LOQ</a>
+            </div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html">Cooling</a>
+                <a href="specs.html">Specs</a>
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon-wrapper" title="Shopping Cart">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="purchase.html" class="btn-primary">Experience Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1>Your Cart</h1>
+            <span id="cart-count-text">0 items</span>
+        </div>
+
+        <div class="cart-grid" id="cart-grid">
+            <!-- Cart items will be injected here -->
+            <div class="cart-items" id="cart-items-list">
+                <!-- Items -->
+            </div>
+
+            <div class="order-summary">
+                <h2 class="summary-title">Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal-val">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span id="shipping-val">FREE</span>
+                </div>
+                
+                <div class="coupon-section">
+                    <div class="coupon-input-group">
+                        <input type="text" class="coupon-input" id="coupon-code" placeholder="Coupon Code">
+                        <button class="apply-btn" onclick="applyCoupon()">Apply</button>
+                    </div>
+                    <p class="coupon-success" id="coupon-msg">Coupon applied! 10% OFF</p>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span id="total-val">$0.00</span>
+                </div>
+
+                <a href="#" class="checkout-btn" onclick="handleCheckout(event)">Proceed to Checkout</a>
+            </div>
+        </div>
+
+        <div id="empty-cart" class="empty-cart-message" style="display: none;">
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any LOQ gear yet.</p>
+            <br>
+            <a href="purchase.html" class="continue-link">Go to Shop →</a>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+    <script>
+        let discount = 0;
+
+        function renderCart() {
+            const items = getCartItems();
+            const listEl = document.getElementById('cart-items-list');
+            const emptyEl = document.getElementById('empty-cart');
+            const gridEl = document.getElementById('cart-grid');
+            const countText = document.getElementById('cart-count-text');
+
+            if (items.length === 0) {
+                gridEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+                countText.textContent = '0 items';
+                return;
+            }
+
+            gridEl.style.display = 'grid';
+            emptyEl.style.display = 'none';
+            countText.textContent = `${items.length} item${items.length > 1 ? 's' : ''}`;
+
+            let html = '';
+            let subtotal = 0;
+
+            items.forEach(item => {
+                // Remove all non-numeric characters except decimal point
+                const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+                subtotal += price * item.quantity;
+
+                const itemImage = item.image ? `<img src="${item.image}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">` : '💻';
+
+                html += `
+                    <div class="cart-item">
+                        <div class="item-img">${itemImage}</div>
+                        <div class="item-details">
+                            <h3 class="item-name">${item.name}</h3>
+                            <p class="item-config">
+                                ${item.config.cpu} | ${item.config.gpu}<br>
+                                ${item.config.ram} | ${item.config.storage}
+                            </p>
+                            <div class="item-controls">
+                                <div style="display: flex; align-items: center;">
+                                    <button class="quantity-btn" onclick="updateQuantity('${item.addedAt}', -1)">-</button>
+                                    <span class="quantity-val">${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity('${item.addedAt}', 1)">+</button>
+                                </div>
+                                <span class="item-price">₹${(price * item.quantity).toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                        <button class="remove-item" onclick="removeFromCart('${item.addedAt}')">Remove</button>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+            updateTotals(subtotal);
+        }
+
+        function updateTotals(subtotal) {
+            const subtotalEl = document.getElementById('subtotal-val');
+            const totalEl = document.getElementById('total-val');
+            
+            subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+            const finalTotal = subtotal * (1 - discount);
+            totalEl.textContent = `₹${finalTotal.toLocaleString('en-IN')}`;
+        }
+
+        async function applyCoupon() {
+            const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+            const msg = document.getElementById('coupon-msg');
+            
+            if (!code) return;
+
+            try {
+                const res = await fetch(`/api/validate-coupon/${code}`);
+                const data = await res.json();
+
+                if (res.ok && data.valid) {
+                    discount = data.discount / 100;
+                    msg.textContent = `Coupon applied! ${data.discount}% OFF`;
+                    msg.style.display = 'block';
+                    msg.style.color = '#22c55e';
+                    renderCart();
+                } else {
+                    discount = 0;
+                    msg.textContent = data.error || 'Invalid coupon code';
+                    msg.style.display = 'block';
+                    msg.style.color = '#ef4444';
+                    renderCart();
+                }
+            } catch (err) {
+                console.error('Validation error:', err);
+                msg.textContent = 'Server error during validation';
+                msg.style.display = 'block';
+                msg.style.color = '#ef4444';
+            }
+        }
+
+        async function handleCheckout(e) {
+            e.preventDefault();
+            const user = localStorage.getItem('user');
+            if (!user) {
+                alert('Please login to complete your purchase.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const items = getCartItems();
+            if (items.length === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
+
+            // Redirect to the new dedicated checkout page
+            window.location.href = 'checkout.html';
+        }
+
+        window.addEventListener('cartUpdated', renderCart);
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "loq-15-amd",
+    "name": "Lenovo LOQ 15",
+    "price": 2,
+    "mrp": 120000,
+    "currency": "₹",
+    "image": "assets/loqcart.png",
+    "description": "The Ultimate 15\" Gaming Powerhouse",
+    "specs": {
+      "cpu": "AMD Ryzen™ 5 7235HS",
+      "gpu": "RTX™ 3050 6GB",
+      "display": "15.6\" FHD 144Hz 100% sRGB"
+    }
+  }
+]

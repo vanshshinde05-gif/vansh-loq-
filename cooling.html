@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooling - Lenovo LOQ 15</title>
+    <meta name="description" content="Discover the advanced thermal architecture of the Lenovo LOQ 15.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-cooling">
+    <nav class="navbar solid-nav" id="navbar">
+        <div class="nav-content">
+            <div class="nav-brand" style="display: flex; align-items: center;"><a href="profile.html" title="My Profile" style="color:white; text-decoration:none; font-size:1.4rem; margin-right:15px; display:flex; align-items:center;">👤</a><a href="index.html" style="color:white; text-decoration:none;">LOQ</a></div>
+            <div class="nav-links">
+                <a href="performance.html">Performance</a>
+                <a href="display.html">Display</a>
+                <a href="cooling.html" class="active">Cooling</a>
+                <a href="specs.html">Specs</a>
+
+            </div>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon-wrapper" title="Shopping Cart">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="purchase.html" class="btn-primary">Experience Now</a>
+            </div>
+        </div>
+    </nav>
+    <script src="cart.js"></script>
+
+    <main class="perf-main">
+        <header class="perf-hero" style="height: 50vh; background: radial-gradient(circle at center, rgba(0, 162, 255, 0.05) 0%, transparent 60%);">
+            <div class="perf-hero-content">
+                <h1 class="headline fade-up-anim">Stay Frosty.</h1>
+                <p class="subheadline fade-up-anim delay-1">Maximum framerates. Zero thermal throttling.</p>
+            </div>
+        </header>
+
+        <section class="perf-section split-layout" id="cooling-specs">
+            <div class="perf-text slide-right-anim">
+                <h3 class="perf-label accent-cyan">Thermal Architecture</h3>
+                <h2 class="section-title">Whisper-Quiet.<br>Ice Cold.</h2>
+                <p class="section-text">The Lenovo LOQ features an entirely redesigned thermal chamber. Armed with massive dual 85mm fans, four high-capacity copper heat pipes, and expanded exhaust vents, it dissipates heat faster than ever before. Play the most demanding AAA titles for hours without dropping a single frame or scorching your fingertips.</p>
+                <div class="perf-stats">
+                    <div class="stat">
+                        <span class="stat-value">28%</span>
+                        <span class="stat-label">More Airflow</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">4</span>
+                        <span class="stat-label">Copper Heat Pipes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="perf-image slide-left-anim">
+                <img src="assets/cooling.png" alt="Lenovo LOQ Cooling System">
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="cooling.js"></script>
+</body>
+</html>
